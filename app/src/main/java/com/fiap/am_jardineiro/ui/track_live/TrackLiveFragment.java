@@ -40,6 +40,25 @@ public class TrackLiveFragment extends Fragment {
         final TextView latestPercent = root.findViewById(R.id.latest_percent);
         final TextView plantNow = root.findViewById(R.id.plant_now);
         final TextView plantState = root.findViewById(R.id.plant_state);
+        final TextView btnRefresh = root.findViewById(R.id.refresh_track);
+        trackLiveViewModel.getText().observe(this, new Observer<String>() {
+            @Override
+            public void onChanged(@Nullable String s) {
+                String string = getString(R.string.track_loading);
+                getStatus(latestPercent,plantNow,plantState,textView);
+                textView.setText(string);
+                btnRefresh.setOnClickListener(new View.OnClickListener() {
+                    @Override
+                    public void onClick(View v) {
+                        getStatus(latestPercent,plantNow,plantState,textView);
+
+                    }
+                });
+            }
+        });
+        return root;
+    }
+    public void getStatus(final TextView latestPercent,final TextView plantNow,final TextView plantState,final TextView textView){
         OkHttpClient client = new OkHttpClient();
         String url = "https://jardineiro.mybluemix.net/plantas/ultima";
         Request request = new Request.Builder().url(url).build();
@@ -83,13 +102,5 @@ public class TrackLiveFragment extends Fragment {
                 }
             }
         });
-        trackLiveViewModel.getText().observe(this, new Observer<String>() {
-            @Override
-            public void onChanged(@Nullable String s) {
-                String string = getString(R.string.track_loading);
-                textView.setText(string);
-            }
-        });
-        return root;
     }
 }

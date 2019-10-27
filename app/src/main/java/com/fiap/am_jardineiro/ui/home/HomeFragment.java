@@ -3,6 +3,7 @@ package com.fiap.am_jardineiro.ui.home;
 import android.app.Activity;
 import android.content.Context;
 import android.media.Image;
+import android.net.Uri;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -137,10 +138,10 @@ public class HomeFragment extends Fragment {
                                 textView.setText("");
                                 if (floatUmidade<=40){
                                     status.setText("Sua plantinha esta feliz hoje");
-                                    image.setImageResource(R.drawable.happyface);
+
                                 }else {
                                     status.setText("Sua plantinha esta com cede");
-                                    image.setImageResource(R.drawable.sad);
+
                                 }
                             }catch (Exception e){
                                 System.out.println(e.getMessage());
