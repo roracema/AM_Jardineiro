@@ -12,13 +12,30 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
-import com.anychart.anychart.AnyChart;
-import com.anychart.anychart.AnyChartView;
-import com.anychart.anychart.DataEntry;
-import com.anychart.anychart.Pie;
-import com.anychart.anychart.ValueDataEntry;
+import com.anychart.AnyChart;
+import com.anychart.AnyChartView;
+
+import com.anychart.chart.common.dataentry.DataEntry;
+import com.anychart.chart.common.dataentry.ValueDataEntry;
+import com.anychart.charts.Cartesian;
+import com.anychart.charts.Pie;
+import com.anychart.charts.Radar;
+import com.anychart.core.cartesian.series.Column;
+import com.anychart.core.radar.series.Line;
+import com.anychart.data.Mapping;
+import com.anychart.data.Set;
+import com.anychart.enums.Align;
+import com.anychart.enums.Anchor;
+import com.anychart.enums.HoverMode;
+import com.anychart.enums.MarkerType;
+import com.anychart.enums.Position;
+import com.anychart.enums.TooltipPositionMode;
 import com.fiap.am_jardineiro.MainActivity;
 import com.fiap.am_jardineiro.R;
+
+import org.json.JSONArray;
+import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -45,16 +62,7 @@ public class HistoryFragment extends Fragment {
         historyViewModel.getText().observe(this, new Observer<String>() {
             @Override
             public void onChanged(@Nullable String s) {
-                //MONTA O GRAFICO
-                Pie pie = AnyChart.pie();
-                List<DataEntry> data = new ArrayList<>();
-                data.add(new ValueDataEntry("John", 10000));
-                data.add(new ValueDataEntry("Jake", 12000));
-                data.add(new ValueDataEntry("Peter", 18000));
-                pie.setData(data);
-                AnyChartView anyChartView = (AnyChartView) getView().findViewById(R.id.any_chart);
-                anychart.setChart(pie);
-
+                createChart();
                 textView.setText(s);
             }
         });
@@ -64,4 +72,77 @@ public class HistoryFragment extends Fragment {
         return root;
     }
 
+    public void createChart(){
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://jardineiro.mybluemix.net/plantas/history";
+        Request request = new Request.Builder().url(url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()){
+                    final String myResponse = response.body().string();
+                    getActivity().runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println(myResponse);
+                            try {
+                                //MONTA O GRAFICO
+                                AnyChartView anyChartView = (AnyChartView) getView().findViewById(R.id.any_chart);
+                                anyChartView.setProgressBar(getView().findViewById(R.id.progress_bar));
+
+                                // fetch JSONArray named users
+                                JSONArray dataJson= new JSONArray(myResponse.toString());
+                                Cartesian cartesian = AnyChart.column();
+                                List<DataEntry> data = new ArrayList<>();
+                                for (int i = 0; i < dataJson.length(); i++) {
+                                    JSONObject response = dataJson.getJSONObject(i);
+                                    Float f= Float.parseFloat(response.getString("umidade"));
+                                    data.add(new ValueDataEntry(response.getString("data"),f));
+                                }
+
+
+                                Column column = cartesian.column(data);
+
+                                column.tooltip()
+                                        .titleFormat("{%X}")
+                                        .position(Position.CENTER_BOTTOM)
+                                        .anchor(Anchor.CENTER_BOTTOM)
+                                        .offsetX(0d)
+                                        .offsetY(5d)
+                                        .format("{%Value}{groupsSeparator: }%");
+
+                                cartesian.animation(true);
+                                String title = getString(R.string.history_title);
+                                String date = getString(R.string.history_date);
+                                String humidity = getString(R.string.history_percent);
+
+                                cartesian.title(title);
+
+                                cartesian.yScale().minimum(0d);
+
+                                cartesian.yAxis(0).labels().format("{%Value}{groupsSeparator: }%");
+
+                                cartesian.tooltip().positionMode(TooltipPositionMode.POINT);
+                                cartesian.interactivity().hoverMode(HoverMode.BY_X);
+
+                                cartesian.xAxis(0).title(date);
+                                cartesian.yAxis(0).title(humidity);
+
+                                anyChartView.setChart(cartesian);
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+
+                        }
+                    });
+                }
+            }
+        });
+
+    }
 }

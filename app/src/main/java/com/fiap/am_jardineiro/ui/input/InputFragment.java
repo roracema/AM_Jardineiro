@@ -1,5 +1,6 @@
 package com.fiap.am_jardineiro.ui.input;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Bundle;
 import android.view.LayoutInflater;
@@ -24,6 +25,7 @@ import com.google.android.material.snackbar.Snackbar;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+import org.w3c.dom.Text;
 
 import java.io.IOException;
 import java.util.ArrayList;
@@ -42,122 +44,198 @@ public class InputFragment extends Fragment {
     private RecyclerView recyclerView;
     private RecyclerView.LayoutManager layoutManager;
     private RecyclerView.Adapter mAdapter;
+    private static Activity context = null;
+    TextView seedUmidade;
+    TextView seedName;
 
     public View onCreateView(@NonNull LayoutInflater inflater,
                              ViewGroup container, Bundle savedInstanceState) {
         inputViewModel =
                 ViewModelProviders.of(this).get(InputViewModel.class);
         View root = inflater.inflate(R.layout.fragment_input, container, false);
-
         final TextView textView = root.findViewById(R.id.text_slideshow);
-
+        context = getActivity();
         inputViewModel.getText().observe(this, new Observer<String>() {
+
             @Override
             public void onChanged(@Nullable String s) {
                 textView.setText("Cadastrar planta e a umidade ideal");
-                final TextView seedName = getView().findViewById(R.id.nome_planta);
-
-                final TextView seedUmidade = getView().findViewById(R.id.umidade_ideal);
+                seedUmidade = getView().findViewById(R.id.umidade_ideal);
+                seedName = getView().findViewById(R.id.nome_planta);
 
                 Button btnSend = (Button) getView().findViewById(R.id.send_planta);
                 btnSend.setOnClickListener(new View.OnClickListener() {
                     @Override
                     public void onClick(View v) {
-                        OkHttpClient client = new OkHttpClient();
-                        MediaType MEDIA_TYPE = MediaType.parse("application/json");
-                        String url = "https://jardineiro.mybluemix.net/plantasDesc";
-                        JSONObject postdata = new JSONObject();
-                        try {
-                            postdata.put("codigo", 1);
-                            postdata.put("nome", seedName.getText());
-                            postdata.put("umidadeIdeal", seedUmidade.getText());
-                        } catch(JSONException e) {
-                            // TODO Auto-generated catch block
-                            e.printStackTrace();
-                        }
-                        RequestBody body = RequestBody.create(MEDIA_TYPE, postdata.toString());
+                        cadastrar(seedName,seedUmidade,getView());
 
-                        Request request = new Request.Builder().url(url).post(body).build();
-                        client.newCall(request).enqueue(new Callback() {
-                            @Override
-                            public void onFailure(Call call, IOException e) {
-
-                            }
-
-                            @Override
-                            public void onResponse(Call call, Response response) throws IOException {
-                                if(response.isSuccessful()){
-                                    final String myResponse = response.body().string();
-                                    getActivity().runOnUiThread(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            System.out.println(myResponse);
-                                            Snackbar.make(getView(), "Cadastrado com sucesso", Snackbar.LENGTH_LONG)
-                                                    .setAction("Action", null).show();
-                                            ((InputMethodManager) getActivity().getSystemService(Context.INPUT_METHOD_SERVICE))
-                                                    .hideSoftInputFromWindow(seedUmidade.getWindowToken(), 0);
-
-                                        }
-                                    });
-                                }
-                            }
-                        });
                     }
                 });
-                OkHttpClient client = new OkHttpClient();
-                String url = "https://jardineiro.mybluemix.net/plantasdesc";
-                Request request = new Request.Builder().url(url).build();
-                client.newCall(request).enqueue(new Callback() {
-                    @Override
-                    public void onFailure(Call call, IOException e) {
-
-                    }
-
-                    @Override
-                    public void onResponse(Call call, Response response) throws IOException {
-                        if(response.isSuccessful()){
-                            final String myResponse = response.body().string();
-                            getActivity().runOnUiThread(new Runnable() {
-                                @Override
-                                public void run() {
-                                    // get the reference of RecyclerView
-                                    RecyclerView recyclerView = (RecyclerView) getView().findViewById(R.id.recyclerView);
-                                    // set a LinearLayoutManager with default vertical orientation
-                                    LinearLayoutManager linearLayoutManager = new LinearLayoutManager(getContext());
-                                    recyclerView.setLayoutManager(linearLayoutManager);
-                                    ArrayList<String> codigos = new ArrayList<>();
-                                    ArrayList<String> nomes = new ArrayList<>();
-                                    ArrayList<String> umidades = new ArrayList<>();
-
-                                    try {
-                                        // fetch JSONArray named users
-                                        JSONArray dataJson= new JSONArray(myResponse.toString());
-                                        // implement for loop for getting users list data
-                                        for (int i = 0; i < dataJson.length(); i++) {
-                                            // create a JSONObject for fetching single user data
-                                            JSONObject userDetail = dataJson.getJSONObject(i);
-                                            // fetch email and name and store it in arraylist
-                                            codigos.add(userDetail.getString("codigoSeed"));
-                                            nomes.add(userDetail.getString("nome"));
-                                            umidades.add(userDetail.getString("umidadeIdeal"));
-                                        }
-                                    } catch (JSONException e) {
-                                        e.printStackTrace();
-                                    }
-                                    CustomAdapter customAdapter = new CustomAdapter(getActivity(), nomes, codigos, umidades);
-                                    recyclerView.setAdapter(customAdapter); // set the Adapter to RecyclerView
-
-                                }
-                            });
-                        }
-                    }
-                });
-
-
-
+                populateView();
             }
         });
         return root;
     }
+    public static void cadastrar(final TextView seedName, final TextView seedUmidade,final View view){
+        OkHttpClient client = new OkHttpClient();
+        MediaType MEDIA_TYPE = MediaType.parse("application/json");
+        String url = "https://jardineiro.mybluemix.net/plantasDesc";
+        JSONObject postdata = new JSONObject();
+        try {
+            postdata.put("codigo", 1);
+            postdata.put("nome", seedName.getText());
+            postdata.put("umidadeIdeal", seedUmidade.getText());
+        } catch(JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        RequestBody body = RequestBody.create(MEDIA_TYPE, postdata.toString());
 
+        Request request = new Request.Builder().url(url).post(body).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()){
+                    final String myResponse = response.body().string();
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            System.out.println(myResponse);
+                            seedName.setText("");
+                            seedUmidade.setText("");
+                            Snackbar.make(view, "Cadastrado com sucesso", Snackbar.LENGTH_LONG)
+                                    .setAction("Action", null).show();
+                            populateView();
+                            ((InputMethodManager) context.getSystemService(Context.INPUT_METHOD_SERVICE))
+                                    .hideSoftInputFromWindow(seedUmidade.getWindowToken(), 0);
+
+                        }
+                    });
+                }
+            }
+        });
+    }
+    public static void populateView(){
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://jardineiro.mybluemix.net/plantasdesc";
+        Request request = new Request.Builder().url(url).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()){
+                    final String myResponse = response.body().string();
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            // get the reference of RecyclerView
+                            RecyclerView recyclerView = (RecyclerView) context.findViewById(R.id.recyclerView);
+                            // set a LinearLayoutManager with default vertical orientation
+                            LinearLayoutManager linearLayoutManager = new LinearLayoutManager(context);
+                            recyclerView.setLayoutManager(linearLayoutManager);
+                            ArrayList<String> codigos = new ArrayList<>();
+                            ArrayList<String> nomes = new ArrayList<>();
+                            ArrayList<String> umidades = new ArrayList<>();
+
+                            try {
+                                // fetch JSONArray named users
+                                JSONArray dataJson= new JSONArray(myResponse.toString());
+                                // implement for loop for getting users list data
+                                for (int i = 0; i < dataJson.length(); i++) {
+                                    // create a JSONObject for fetching single user data
+                                    JSONObject jsonData = dataJson.getJSONObject(i);
+                                    // fetch email and name and store it in arraylist
+                                    codigos.add(jsonData.getString("id"));
+                                    nomes.add(jsonData.getString("nome"));
+                                    umidades.add(jsonData.getString("umidadeIdeal"));
+                                }
+                            } catch (JSONException e) {
+                                e.printStackTrace();
+                            }
+                            CustomAdapter customAdapter = new CustomAdapter(context, nomes, codigos, umidades);
+                            recyclerView.setAdapter(customAdapter); // set the Adapter to RecyclerView
+
+                        }
+                    });
+                }
+            }
+        });
+    }
+    public static void delete(String codigo){
+        System.out.println("codigo:"+codigo);
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://jardineiro.mybluemix.net/plantasdesc?codigo="+codigo;
+        Request request = new Request.Builder().url(url).delete().build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()){
+                    final String myResponse = response.body().string();
+
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            populateView();
+                            System.out.println(myResponse);
+                        }
+                    });
+                }
+            }
+        });
+
+    };
+
+    public static void update(String codigo,String seedName, String seedUmidade){
+        OkHttpClient client = new OkHttpClient();
+        String url = "https://jardineiro.mybluemix.net/plantasdesc?codigo="+codigo+"&nome="+seedName+"&umidadeIdeal="+seedUmidade;
+        MediaType MEDIA_TYPE = MediaType.parse("application/json");
+
+        JSONObject postdata = new JSONObject();
+        try {
+            postdata.put("nome", seedName);
+            postdata.put("umidadeIdeal", seedUmidade);
+        } catch(JSONException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+        RequestBody body = RequestBody.create(MEDIA_TYPE, postdata.toString());
+
+        Request request = new Request.Builder().url(url).put(body).build();
+        client.newCall(request).enqueue(new Callback() {
+            @Override
+            public void onFailure(Call call, IOException e) {
+
+            }
+
+            @Override
+            public void onResponse(Call call, Response response) throws IOException {
+                if(response.isSuccessful()){
+                    final String myResponse = response.body().string();
+
+                    context.runOnUiThread(new Runnable() {
+                        @Override
+                        public void run() {
+                            populateView();
+                            System.out.println(myResponse);
+                        }
+                    });
+                }
+            }
+        });
+
+    };
 }

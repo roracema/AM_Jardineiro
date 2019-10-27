@@ -7,8 +7,15 @@
     <string name="nav_header_desc">Navigation header</string>
     <string name="action_settings">Settings</string>
 
+    <string name="track_loading">Loading the latest</string>
+
+    <string name="history_title">The last humidity per day% (the lower the percentage the higher the humidity)</string>
+    <string name="history_percent">Humidit Percent</string>
+    <string name="history_date">Date</string>
+
     <string name="menu_home">Home</string>
     <string name="menu_gallery">Track Live</string>
-    <string name="menu_slideshow">Cadastrar</string>
+    <string name="menu_slideshow">Register</string>
     <string name="menu_tools">History</string>
+    <string name="latest_percent">(Latest value found)</string>
 </resources>

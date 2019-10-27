@@ -14,6 +14,8 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import com.fiap.am_jardineiro.ui.input.InputFragment;
 
+import org.w3c.dom.Text;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
@@ -31,11 +33,11 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
     ArrayList<String> umidades;
     Context context;
 
-    public CustomAdapter(Context context, ArrayList<String> personNames, ArrayList<String> emailIds, ArrayList<String> mobileNumbers) {
+    public CustomAdapter(Context context, ArrayList<String> nomes, ArrayList<String> codigos, ArrayList<String> umidades) {
         this.context = context;
-        this.codigos = personNames;
-        this.nomes = emailIds;
-        this.umidades = mobileNumbers;
+        this.codigos = codigos;
+        this.nomes = nomes;
+        this.umidades = umidades;
     }
 
     @Override
@@ -49,36 +51,29 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
     @Override
     public void onBindViewHolder(MyViewHolder holder, final int position) {
         // set the data in items
-        holder.name.setText(codigos.get(position));
-        holder.codigo.setText(nomes.get(position));
+        holder.name.setText(nomes.get(position));
+        holder.codigo.setText(codigos.get(position));
         holder.umidade.setText(umidades.get(position));
         Button btn = holder.itemView.findViewById(R.id.delete_button);
+        Button btnUpdate = holder.itemView.findViewById(R.id.update_button);
+        final TextView seedName = holder.itemView.findViewById(R.id.name);
+        final TextView seedUmidade = holder.itemView.findViewById(R.id.umidade);
 
         btn.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-//                OkHttpClient client = new OkHttpClient();
-//                String url = "https://jardineiro.mybluemix.net/plantas/ultima";
-//                Request request = new Request.Builder().url(url).build();
-//                client.newCall(request).enqueue(new Callback() {
-//                    @Override
-//                    public void onFailure(Call call, IOException e) {
-//
-//                    }
-//
-//                    @Override
-//                    public void onResponse(Call call, Response response) throws IOException {
-//                        if(response.isSuccessful()){
-//                            final String myResponse = response.body().string();
-//                            .runOnUiThread(new Runnable() {
-//                                @Override
-//                                public void run() {
-//                                    System.out.println(myResponse);
-//                                }
-//                            });
-//                        }
-//                    }
-//                });
+                InputFragment.delete(codigos.get(position));
+                Toast.makeText(context, nomes.get(position)+" removido", Toast.LENGTH_SHORT).show();
+                InputFragment.populateView();
+            }
+
+        });
+        btnUpdate.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                InputFragment.update(codigos.get(position),seedName.getText().toString(),seedUmidade.getText().toString());
+                Toast.makeText(context, nomes.get(position)+" Atualizado", Toast.LENGTH_SHORT).show();
+                InputFragment.populateView();
             }
 
         });
@@ -87,7 +82,7 @@ public class CustomAdapter extends RecyclerView.Adapter<CustomAdapter.MyViewHold
             @Override
             public void onClick(View view) {
                 // display a toast with person name on item click
-                Toast.makeText(context, nomes.get(position), Toast.LENGTH_SHORT).show();
+                Toast.makeText(context, nomes.get(position) + " Seed", Toast.LENGTH_SHORT).show();
 
             }
         });

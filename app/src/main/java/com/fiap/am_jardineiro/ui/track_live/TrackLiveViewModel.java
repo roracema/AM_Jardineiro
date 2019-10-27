@@ -1,14 +1,14 @@
-package com.fiap.am_jardineiro.ui.gallery;
+package com.fiap.am_jardineiro.ui.track_live;
 
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.MutableLiveData;
 import androidx.lifecycle.ViewModel;
 
-public class GalleryViewModel extends ViewModel {
+public class TrackLiveViewModel extends ViewModel {
 
     private MutableLiveData<String> mText;
 
-    public GalleryViewModel() {
+    public TrackLiveViewModel() {
         mText = new MutableLiveData<>();
         mText.setValue("This is gallery fragment");
     }

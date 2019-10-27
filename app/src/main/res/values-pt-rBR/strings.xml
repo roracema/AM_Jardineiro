@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="navigation_drawer_open">Abrir gaveta de navegação</string>
+    <string name="navigation_drawer_close">Fechar gaveta de navegação</string>
+    <string name="app_name">Jardineiro</string>
+    <string name="action_settings">Configuracao</string>
+    <string name="menu_gallery">Ao vivo</string>
+    <string name="menu_home">Home</string>
+    <string name="menu_slideshow">Cadastrar</string>
+    <string name="menu_tools">Histórico</string>
+    <string name="nav_header_desc">Barra de navegacao</string>
+    <string name="nav_header_subtitle">Projeto academico Oracle</string>
+    <string name="nav_header_title">Jardineiro</string>
+    <string name="track_loading">Carregando o mais recente</string>
+    <string name="history_title">Ultima umidade(%) no dia (quanto menor a porcentagem mais umida a terra está)</string>
+    <string name="history_percent">Porcentagem de umidade</string>
+    <string name="history_date">Data</string>
+    <string name="latest_percent">(Última valor encontrado)</string>
+</resources>

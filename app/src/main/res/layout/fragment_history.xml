@@ -16,8 +16,11 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <com.anychart.anychart.AnyChartView
+<androidx.core.widget.ContentLoadingProgressBar
+    android:id="@+id/progress_bar"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"/>
+    <com.anychart.AnyChartView
         android:id="@+id/any_chart"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
